@@ -3,6 +3,8 @@ FROM node:18-alpine as frontend-builder
 WORKDIR /webssh/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 # 忽略一些可能的 npm 错误，确保依赖安装
+RUN apk add --no-cache python3 make g++
+ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN npm install --legacy-peer-deps
 COPY frontend .
 RUN npm run build
