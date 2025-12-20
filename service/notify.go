@@ -20,6 +20,9 @@ func SendNotification(subject, body string) {
 	if conf.EnableTg {
 		go sendTelegram(conf, subject, body)
 	}
+	if conf.EnableBark {
+		go sendBark(conf, subject, body)
+	}
 }
 
 func sendEmail(conf model.NotificationConfig, subject, body string) {
@@ -45,6 +48,34 @@ func sendTelegram(conf model.NotificationConfig, subject, body string) {
 	})
 	if err != nil {
 		fmt.Printf("TG send failed: %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+}
+
+func sendBark(conf model.NotificationConfig, subject, body string) {
+	// Bark URL format: https://api.day.app/yourkey/title/body
+	// Ensure BarkUrl ends with /
+	if conf.BarkUrl == "" {
+		return
+	}
+	
+	// If user only provided the key, prepend the official API URL
+	targetUrl := conf.BarkUrl
+	if len(targetUrl) < 10 { // Just a rough check, key is usually longer but URL definitely is
+		targetUrl = "https://api.day.app/" + targetUrl
+	}
+	
+	// Add title and body
+	// We need to encode paths
+	finalUrl := fmt.Sprintf("%s/%s/%s", 
+		targetUrl, 
+		url.PathEscape(subject), 
+		url.PathEscape(body))
+		
+	resp, err := http.Get(finalUrl)
+	if err != nil {
+		fmt.Printf("Bark send failed: %v\n", err)
 		return
 	}
 	defer resp.Body.Close()

@@ -47,6 +47,9 @@ type NotificationConfig struct {
 	EnableTg    bool   `json:"enable_tg"`
 	TgBotToken  string `json:"tg_bot_token"`
 	TgChatID    string `json:"tg_chat_id"`
+	
+	EnableBark  bool   `json:"enable_bark"`
+	BarkUrl     string `json:"bark_url"`
 }
 
 // InitDB 初始化数据库连接及表结构
