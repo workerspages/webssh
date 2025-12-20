@@ -2,84 +2,111 @@
 
 ## 项目简介
 
-WebSSH 是一个基于Go(后端)和Vue2(前端)的Web端SSH连接工具，集成SFTP文件管理
-* 连接界面
-![photo_2025-08-04_18-36-27](https://github.com/user-attachments/assets/1a0cccf9-ae15-4743-9dfd-f2b7bbfcd2d6)
+WebSSH 是一个基于 **Go (Backend)** 和 **Vue2 (Frontend)** 构建的现代化 Web 端 SSH 连接与任务调度平台。它不仅提供了流畅的 Web 终端体验和 SFTP 文件管理功能，还内置了强大的定时任务调度系统和通知服务，是运维管理的得力助手。
 
+> **核心特性**： 现代化 UI | SSH 终端 | SFTP 文件管理 | Cron 定时任务 | 邮件/Telegram 通知
 
-* 终端和sftp管理页面
-![image](https://github.com/user-attachments/assets/c0ee38c2-e336-4ec6-a845-2e527062b20c)
+## 功能特性
 
+- **Web 终端**：基于 Xterm.js 的高性能终端，支持自定义主题、字体、快捷连接及会话管理。
+- **文件管理**：集成的 SFTP 面板，支持拖拽上传、下载、实时浏览服务器文件。
+- **定时任务**：
+  - 支持标准 Cron 表达式（精确到秒）。
+  - 支持多步骤命令链（Command Chaining）。
+  - 任务执行日志持久化与结果回溯。
+- **消息通知**：
+  - 支持 SMTP 邮件通知。
+  - 支持 Telegram Bot 消息推送。
+  - 可配置任务执行失败/成功时的即时告警。
+- **安全认证**：
+  - 独立的 Web 登录系统（JWT 认证）。
+  - 支持 SSH 密码与密钥（Private Key）认证。
+- **现代化设计**：全新的毛玻璃拟态 UI，响应式布局，支持夜间模式。
 
-## 功能介绍
+## 快速部署
 
-- **Web 终端**：通过浏览器直接连接远程服务器，支持一键生成快捷链接。
-- **多种认证方式**：支持密码和密钥两种 SSH 登录方式。
-- **文件管理**：支持远程文件的上传、下载与浏览。
-- **多标签页**：可同时管理多个 SSH 连接会话。
-- **主题切换**：支持明暗主题自由切换。
-- **初始命令**：支持登录后自动执行指定命令。
-- **安全认证**：可选开启 Web 端登录认证。
+### 1. Docker 镜像启动 (推荐)
 
-## 安装与运行方法
-
-### 1. Docker 镜像快速启动
+直接使用 GitHub Container Registry 托管的最新镜像：
 
 ```bash
 docker run -d \
   -p 8888:8888 \
-  -e USER=youruser     # 可选，Web登录用户名
-  -e PASS=yourpass     # 可选，Web登录密码（需与USER同时设置）
-  -e PORT=8888         # 可选，服务端口，默认8888
+  -e USER=admin        # 初始管理员用户名
+  -e PASS=admin123     # 初始管理员密码
   --name webssh \
-  eooce/webssh:latest
+  --restart always \
+  ghcr.io/workerspages/webssh:latest
 ```
 
-### 2. Docker Compose 部署
-
-新建 `docker-compose.yml`：
+### 2. Docker Compose
 
 ```yaml
-version: '3'
+version: '3.8'
 services:
   webssh:
-    image: eooce/webssh:latest
+    image: ghcr.io/workerspages/webssh:latest
     container_name: webssh
     ports:
       - "8888:8888"
     environment:
-      - USER=      # 可选，Web登录用户名（需与PASS同时设置）
-      - PASS=      # 可选，Web登录密码
-      - PORT=8888  # 可选，服务端口，默认8888
-    restart: unless-stopped
+      - USER=admin
+      - PASS=admin123
+    volumes:
+      - ./data:/app/data  # 挂载数据目录以持久化数据库(webssh.db)
+    restart: always
 ```
 
-启动服务：
-```bash
-docker-compose up -d
-```
+## 源码构建
 
----
+如果您需要二次开发或自行构建：
 
-### 3. 源码构建（前端+后端）
+### 前置要求
 
-1. **环境要求**：Node.js 14+，Go 1.21+
-2. **安装前端依赖**：
+- **Go**: 1.24+
+- **Node.js**: 18+
+
+### 构建步骤
+
+1. **克隆仓库**
+
    ```bash
-   cd webssh/frontend
+   git clone https://github.com/workerspages/webssh.git
+   cd webssh
+   ```
+
+2. **构建前端**
+
+   ```bash
+   cd frontend
    npm install
+   npm run build
+   # 构建产物将自动输出到 ../public 目录
    ```
-3. **构建前端**：
-   ```bash
-   npm run fix && npm run build
-   ```
-   构建产物在 根目录public
-4. **启动后端服务**：
-   ```bash
-   cd .. && go run main.go
-   ```
-   - 默认监听端口为 8888，可通过 `-p` 参数指定端口。
-   - 可通过 `-a user:pass` 启用 Web 登录认证。
 
-## 鸣谢
-[Jrohy](https://github.com/Jrohy)
+3. **构建后端**
+
+   ```bash
+   cd ..
+   # 启用 CGO_ENABLED=0 以确保静态链接兼容性
+   set CGO_ENABLED=0
+   go build -ldflags "-s -w" -o webssh main.go
+   ```
+
+4. **运行**
+
+   ```bash
+   ./webssh
+   ```
+
+   访问 `http://localhost:8888` 即可。
+
+## 技术栈
+
+- **前端**: Vue 2.7, Element UI, Xterm.js, Axios
+- **后端**: Go 1.24, Gin, GORM (SQLite), Gorilla WebSocket, Robfig Cron
+- **部署**: Docker, GitHub Actions
+
+## 开源协议
+
+MIT License
