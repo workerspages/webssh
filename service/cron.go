@@ -18,6 +18,7 @@ var Cron *cron.Cron
 func StartCron() {
 	Cron = cron.New()
 	Cron.Start()
+	log.Printf("Cron Manager Started. Current Server Time: %s", time.Now().Format(time.RFC3339))
 	ReloadJobs()
 }
 

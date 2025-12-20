@@ -26,6 +26,7 @@ FROM alpine:latest
 WORKDIR /app
 # 安装基础依赖
 RUN apk --no-cache add ca-certificates tzdata
+ENV TZ=Asia/Shanghai
 COPY --from=backend-builder /webssh/webssh .
 EXPOSE 8888
 CMD ["./webssh"]
