@@ -76,6 +76,7 @@ func RunJob(job *model.CronJob) {
 	go func(scs int) {
 		var finalStatus = "尚未执行"
 		var finalLog string
+		// 初始时间，将在延迟后更新
 		var startTime = time.Now()
 
 		defer func() {
@@ -102,6 +103,8 @@ func RunJob(job *model.CronJob) {
 		if scs > 0 {
 			log.Printf("任务 [%s] 将随机延迟 %d 秒后执行...", job.Name, scs)
 			time.Sleep(time.Duration(scs) * time.Second)
+			// 延迟结束，这是真正的开始执行时间
+			startTime = time.Now()
 		}
 
 		log.Printf("[Job %s] Start executing...", job.Name)
