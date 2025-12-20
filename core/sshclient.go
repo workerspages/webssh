@@ -177,3 +177,37 @@ func (sclient *SSHClient) Connect(ws *websocket.Conn, timeout time.Duration, clo
 		}
 	}
 }
+
+
+// RunBatchTasks 依次执行命令，遇到错误则停止
+func (sclient *SSHClient) RunBatchTasks(commands []string) (string, error) {
+	// 连接
+	if err := sclient.GenerateClient(); err != nil {
+		return "", fmt.Errorf("SSH连接失败: %v", err)
+	}
+	defer sclient.Close()
+
+	var fullLog string
+
+	for i, cmd := range commands {
+		session, err := sclient.Client.NewSession()
+		if err != nil {
+			return fullLog, fmt.Errorf("创建Session失败: %v", err)
+		}
+
+		fullLog += fmt.Sprintf(">>> 执行命令 [%d]: %s\n", i+1, cmd)
+		
+		// CombinedOutput 运行命令并返回标准输出和标准错误
+		output, err := session.CombinedOutput(cmd)
+		session.Close() // 必须关闭以便下次循环
+
+		fullLog += string(output) + "\n"
+
+		if err != nil {
+			fullLog += fmt.Sprintf("!!! 执行错误: %v\n", err)
+			return fullLog, err
+		}
+	}
+
+	return fullLog, nil
+}
