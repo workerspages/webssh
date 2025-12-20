@@ -8,7 +8,7 @@ module.exports = {
   assetsDir: 'static',
   lintOnSave: false,
   productionSourceMap: false,
-  parallel: require('os').cpus().length > 1,
+  parallel: false,
 
   devServer: {
     disableHostCheck: false,
