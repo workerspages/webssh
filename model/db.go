@@ -55,8 +55,17 @@ type NotificationConfig struct {
 // InitDB 初始化数据库连接及表结构
 func InitDB() {
 	var err error
-	// 连接 SQLite 数据库，文件名为 webssh.db
-	DB, err = gorm.Open(sqlite.Open("webssh.db"), &gorm.Config{})
+	
+	// 确保数据目录存在
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		err := os.Mkdir("data", 0755)
+		if err != nil {
+			log.Fatal("failed to create data directory: ", err)
+		}
+	}
+
+	// 连接 SQLite 数据库，文件名为 data/webssh.db
+	DB, err = gorm.Open(sqlite.Open("data/webssh.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database: ", err)
 	}
