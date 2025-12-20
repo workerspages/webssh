@@ -118,32 +118,54 @@ export default {
         return
       }
       
-      // 清理数据
+      this.sshInfo.hostname = this.sshInfo.hostname.trim()
+      this.sshInfo.username = this.sshInfo.username.trim()
+      
       if (this.sshInfo.privateKey) {
         this.sshInfo.password = ''
-      }
-
-      // 保存配置
-      localStorage.setItem('connectionInfo', JSON.stringify(this.sshInfo))
-      
-      // 构造跳转参数
-      const query = {
-        hostname: encodeURIComponent(this.sshInfo.hostname),
-        port: this.sshInfo.port,
-        username: encodeURIComponent(this.sshInfo.username),
-        command: encodeURIComponent(this.sshInfo.command)
-      }
-      
-      if (this.sshInfo.privateKey) {
         sessionStorage.setItem('sshInfo', JSON.stringify(this.sshInfo))
-        query.useKey = 1
+        const routeUrl = this.$router.resolve({ path: '/terminal', query: { useKey: 1 } })
+        window.open(routeUrl.href, '_blank')
       } else {
-        query.password = btoa(this.sshInfo.password)
+        // 保存常用信息
+        localStorage.setItem('connectionInfo', JSON.stringify(this.sshInfo))
+        
+        const query = {
+          hostname: encodeURIComponent(this.sshInfo.hostname),
+          port: this.sshInfo.port,
+          username: encodeURIComponent(this.sshInfo.username),
+          password: btoa(this.sshInfo.password),
+          command: encodeURIComponent(this.sshInfo.command)
+        }
+        const routeUrl = this.$router.resolve({ path: '/terminal', query })
+        window.open(routeUrl.href, '_blank')
       }
-
-      // 打开新窗口
+    },
+    onGenerateLink() {
+      if (!this.sshInfo.hostname || !this.sshInfo.username) {
+        this.$message.error('请填写主机和用户名')
+        return
+      }
+      if (this.sshInfo.privateKey) {
+          this.$message.warning('密钥登录暂不支持生成快捷链接(安全考虑)')
+          return
+      }
+      
+      const query = {
+          hostname: encodeURIComponent(this.sshInfo.hostname.trim()),
+          port: this.sshInfo.port,
+          username: encodeURIComponent(this.sshInfo.username.trim()),
+          password: btoa(this.sshInfo.password),
+          command: encodeURIComponent(this.sshInfo.command)
+      }
       const routeUrl = this.$router.resolve({ path: '/terminal', query })
-      window.open(routeUrl.href, '_blank')
+      this.generatedLink = window.location.origin + routeUrl.href
+      this.$message.success('链接已生成')
+    },
+    copyLink() {
+       navigator.clipboard.writeText(this.generatedLink).then(() => {
+           this.$message.success('已复制到剪贴板')
+       })
     },
     handlePrivateKeyUpload(file) {
       const reader = new FileReader()
