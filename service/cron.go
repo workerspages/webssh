@@ -35,11 +35,13 @@ func ReloadJobs() {
 
 	for _, job := range jobs {
 		j := job // copy for closure
-		_, err := Cron.AddFunc(j.CronExpr, func() {
+		id, err := Cron.AddFunc(j.CronExpr, func() {
 			RunJob(&j)
 		})
 		if err != nil {
 			log.Printf("Failed to add cron job %s: %v", j.Name, err)
+		} else {
+			log.Printf("Registered job [%s] with schedule: %s (ID: %d)", j.Name, j.CronExpr, id)
 		}
 	}
 }
