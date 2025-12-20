@@ -21,7 +21,14 @@ import {
     Tabs,
     TabPane,
     Divider,
-    Tooltip
+    Tooltip,
+    Menu,
+    Submenu,
+    MenuItem,
+    MenuItemGroup,
+    Aside,
+    Breadcrumb,
+    BreadcrumbItem
 } from 'element-ui'
 const element = {
     install: function (Vue) {
@@ -37,7 +44,12 @@ const element = {
         Vue.use(TableColumn)
         Vue.use(Container)
         Vue.use(Header)
+        Vue.use(Aside)
         Vue.use(Main)
+        Vue.use(Menu)
+        Vue.use(Submenu)
+        Vue.use(MenuItem)
+        Vue.use(MenuItemGroup)
         Vue.use(Upload)
         Vue.use(Dropdown)
         Vue.use(DropdownItem)
@@ -46,6 +58,8 @@ const element = {
         Vue.use(TabPane)
         Vue.use(Divider)
         Vue.use(Tooltip)
+        Vue.use(Breadcrumb)
+        Vue.use(BreadcrumbItem)
         Vue.prototype.$message = Message
     }
 }
