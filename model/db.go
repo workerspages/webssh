@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -13,39 +13,40 @@ var DB *gorm.DB
 
 // User 管理员用户
 type User struct {
-	ID        uint      `gorm:"primaryKey"`
-	Username  string    `gorm:"unique"`
-	Password  string    `json:"-"` // 存储明文或哈希，本示例为演示方便存明文，生产环境建议使用Bcrypt加密
-	CreatedAt time.Time
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Username  string    `gorm:"unique" json:"username"`
+	Password  string    `json:"-"` // 存储明文或哈希
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // CronJob 定时任务
 type CronJob struct {
-	ID          uint `gorm:"primaryKey"`
-	Name        string
-	CronExpr    string // Cron表达式
-	HostInfo    string // Base64编码的SSH连接信息
-	Commands    string // JSON字符串 ["cmd1", "cmd2"]
-	Status      bool   // true: 启用, false: 禁用
-	LastRunTime *time.Time
-	LastResult  string // 成功/失败
-	ErrorLog    string // 具体的错误日志
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uint   `gorm:"primaryKey" json:"ID"`
+	Name        string `json:"Name"`
+	CronExpr    string `json:"CronExpr"`
+	HostInfo    string `json:"HostInfo"`
+	Commands    string `json:"Commands"`
+	Status      int    `json:"Status"` // 1: 启用, 0: 禁用
+	LastRunTime *time.Time `json:"LastRunTime"`
+	LastResult  string `json:"LastResult"`
+	ErrorLog    string `json:"ErrorLog"`
+	CreatedAt   time.Time `json:"CreatedAt"`
+	UpdatedAt   time.Time `json:"UpdatedAt"`
 }
 
 // NotificationConfig 通知配置
 type NotificationConfig struct {
-	ID          uint `gorm:"primaryKey"`
-	EmailHost   string
-	EmailPort   int
-	EmailUser   string
-	EmailPass   string
-	EmailTo     string
-	TgBotToken  string
-	TgChatID    string
-	EnableEmail bool
-	EnableTg    bool
+	ID          uint   `gorm:"primaryKey" json:"ID"`
+	EnableEmail bool   `json:"enable_email"`
+	EmailHost   string `json:"email_host"`
+	EmailPort   int    `json:"email_port"`
+	EmailUser   string `json:"email_user"`
+	EmailPass   string `json:"email_pass"`
+	EmailTo     string `json:"email_to"`
+	
+	EnableTg    bool   `json:"enable_tg"`
+	TgBotToken  string `json:"tg_bot_token"`
+	TgChatID    string `json:"tg_chat_id"`
 }
 
 // InitDB 初始化数据库连接及表结构

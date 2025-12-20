@@ -18,6 +18,7 @@ RUN go mod download
 COPY . .
 # 将构建好的前端资源覆盖到 public 目录 (main.go 会 embed 这个目录)
 COPY --from=frontend-builder /webssh/public ./public
+RUN go mod tidy
 RUN CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static'" -o webssh main.go
 
 # Stage 3: Final Image

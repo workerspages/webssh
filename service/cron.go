@@ -28,7 +28,7 @@ func ReloadJobs() {
 	}
 
 	var jobs []model.CronJob
-	model.DB.Where("status = ?", true).Find(&jobs)
+	model.DB.Where("status = ?", 1).Find(&jobs)
 
 	for _, job := range jobs {
 		j := job // copy for closure
