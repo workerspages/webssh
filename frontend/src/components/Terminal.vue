@@ -77,16 +77,29 @@ export default {
                 cursorBlink: true,
                 cursorStyle: 'bar',
                 cursorWidth: 4,
-                fontFamily: 'DejaVu Sans Mono, monospace',  // 设置字体
-                fontSize: this.fontSize,            // 字号
+                fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+                fontSize: this.fontSize,
                 theme: {
-                    background: '#000000',          // 背景色
-                    foreground: '#ffffff',          // 字体颜色
-                    cursor: '#ffffff',              // 光标颜色
-                    selection: '#daffe77a',         // 选中区域颜色
-                    blue: '#1981ff',                // 蓝色
-                    brightMagenta: '#e879f9',       // 紫色
-                    brightBlue: '#6eb0ff',          // 亮蓝色
+                    background: '#1e1e1e',
+                    foreground: '#e0e0e0',
+                    cursor: '#ffffff',
+                    selection: '#5da5f555',
+                    black: '#000000',
+                    red: '#e06c75',
+                    green: '#98c379',
+                    yellow: '#e5c07b',
+                    blue: '#61afef',
+                    magenta: '#c678dd',
+                    cyan: '#56b6c2',
+                    white: '#dcdfe4',
+                    brightBlack: '#5c6370',
+                    brightRed: '#e06c75',
+                    brightGreen: '#98c379',
+                    brightYellow: '#e5c07b',
+                    brightBlue: '#61afef',
+                    brightMagenta: '#c678dd',
+                    brightCyan: '#56b6c2',
+                    brightWhite: '#ffffff'
                 }
             })
             this.term.loadAddon(fitAddon)
