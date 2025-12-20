@@ -1,10 +1,10 @@
 <template>
   <div class="app-wrapper">
     <el-container style="height: 100vh">
-      <el-aside width="220px" class="sidebar-container">
+      <el-aside :width="isCollapse ? '64px' : '220px'" class="sidebar-container">
         <div class="logo-wrapper">
           <i class="el-icon-lock logo-icon"></i>
-          <span v-if="!isCollapse">WebSSH</span>
+          <span v-show="!isCollapse">WebSSH</span>
         </div>
         <el-menu
           :default-active="$route.path"
@@ -12,6 +12,7 @@
           text-color="#bfcbd9"
           active-text-color="#409EFF"
           :collapse="isCollapse"
+          mode="vertical"
           router
           class="el-menu-vertical">
           
@@ -32,7 +33,7 @@
 
         </el-menu>
         
-        <div class="bottom-actions">
+        <div class="bottom-actions" v-show="!isCollapse">
            <el-button type="text" @click="logout" style="color: #bfcbd9">
              <i class="el-icon-switch-button"></i> 退出登录
            </el-button>
