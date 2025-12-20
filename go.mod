@@ -5,9 +5,14 @@ go 1.24
 require (
 	github.com/gin-contrib/gzip v1.2.2
 	github.com/gin-gonic/gin v1.10.0
+	github.com/glebarez/sqlite v1.11.0
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/pkg/sftp v1.13.7
+	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/crypto v0.32.0
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gorm.io/gorm v1.25.12
 )
 
 require (
