@@ -31,6 +31,20 @@ var instance = axios.create({
     validateStatus
 })
 
+// 请求拦截器
+instance.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            config.headers['Authorization'] = 'Bearer ' + token
+        }
+        return config
+    },
+    error => {
+        return Promise.reject(error)
+    }
+)
+
 // 响应拦截器即异常处理
 instance.interceptors.response.use(
     response => {
