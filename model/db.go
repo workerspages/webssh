@@ -27,6 +27,7 @@ type CronJob struct {
 	HostInfo    string `json:"HostInfo"`
 	Commands    string `json:"Commands"`
 	Status      int    `json:"Status"` // 1: 启用, 0: 禁用
+	RandomDelay int    `json:"RandomDelay"` // 随机延迟时间(分钟)
 	LastRunTime *time.Time `json:"LastRunTime"`
 	LastResult  string `json:"LastResult"`
 	ErrorLog    string `json:"ErrorLog"`

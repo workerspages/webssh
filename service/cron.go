@@ -41,43 +41,136 @@ func ReloadJobs() {
 	}
 }
 
+// SSHInfo represents the structure of host information
+type SSHInfo struct {
+	Hostname   string `json:"hostname"`
+	Port       int    `json:"port"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	PrivateKey string `json:"privateKey"`
+	Passphrase string `json:"passphrase"`
+	LoginType  int    `json:"loginType"` // 0 for password, 1 for private key
+}
+
+// CommandStep represents a single command to be executed
+type CommandStep struct {
+	Command string `json:"command"`
+}
+
 // RunJob 立即执行任务
-func RunJob(job *model.CronJob) {
-	log.Printf("Starting job: %s", job.Name)
-	
-	// 更新开始状态
-	now := time.Now()
-	
-	// 1. 解析 SSH 信息
-	client, err := core.DecodedMsgToSSHClient(job.HostInfo)
-	if err != nil {
-		handleJobResult(job, now, "失败", fmt.Sprintf("SSH配置解析失败: %v", err))
-		return
-	}
+func RunJob(job *model.CronJob) func() { // Changed signature to return a func()
+	// 包装为闭包以捕获参数
+	return func() {
+		// 检查随机延迟
+		delaySeconds := 0
+		if job.RandomDelay > 0 {
+			// 生成 0 到 RandomDelay*60 之间的随机秒数
+			r := rand.New(rand.NewSource(time.Now().UnixNano()))
+			delaySeconds = r.Intn(job.RandomDelay * 60)
+		}
 
-	// 2. 解析命令列表
-	var cmds []string
-	if err := json.Unmarshal([]byte(job.Commands), &cmds); err != nil {
-		handleJobResult(job, now, "失败", "命令格式解析失败")
-		return
-	}
+		go func(scs int) {
+			if scs > 0 {
+				log.Printf("任务 [%s] 将随机延迟 %d 秒后执行...", job.Name, scs)
+				time.Sleep(time.Duration(scs) * time.Second)
+			}
 
-	// 3. 执行
-	output, err := client.RunBatchTasks(cmds)
-	
-	// 4. 处理结果
-	if err != nil {
-		handleJobResult(job, now, "失败", output)
-		// 发送通知
-		SendNotification(
-			fmt.Sprintf("【WebSSH 报警】任务执行失败: %s", job.Name),
-			fmt.Sprintf("服务器: %s\n执行时间: %s\n\n错误日志:\n%s", client.Hostname, now.Format(time.RFC3339), output),
-		)
-	} else {
-		handleJobResult(job, now, "成功", output)
+			log.Printf("开始执行任务: %s", job.Name)
+
+			// 解析主机信息
+			var hosts []SSHInfo
+			err := json.Unmarshal([]byte(job.HostInfo), &hosts)
+			if err != nil {
+				updateJobResult(job.ID, "失败", fmt.Sprintf("解析主机信息失败: %v", err))
+				return
+			}
+
+			// 解析命令列表
+			var commands []CommandStep
+			err = json.Unmarshal([]byte(job.Commands), &commands)
+			if err != nil {
+				updateJobResult(job.ID, "失败", fmt.Sprintf("解析命令失败: %v", err))
+				return
+			}
+
+			var resultLog strings.Builder
+			successCount := 0
+			failCount := 0
+
+			// 遍历所有主机执行
+			for _, host := range hosts {
+				resultLog.WriteString(fmt.Sprintf("\n--- Host: %s (%s) ---\n", host.Hostname, host.Username))
+
+				client, err := core.NewSSHClient(&core.SSHClient{
+					Host:       host.Hostname,
+					Port:       host.Port,
+					Username:   host.Username,
+					Password:   host.Password,
+					Key:        host.PrivateKey,
+					Passphrase: host.Passphrase,
+					IsKeyAuth:  host.LoginType == 1, // Corrected field name
+				})
+
+				if err != nil {
+					failCount++
+					errMsg := fmt.Sprintf("连接失败: %v", err)
+					resultLog.WriteString(errMsg + "\n")
+					continue
+				}
+
+				// Convert CommandStep slice to string slice for RunBatchTasks
+				var cmdStrings []string
+				for _, cmd := range commands {
+					cmdStrings = append(cmdStrings, cmd.Command)
+				}
+
+				output, err := client.RunBatchTasks(cmdStrings) // Pass string slice
+				client.Close()                                  // 及时关闭
+
+				if err != nil {
+					failCount++
+					resultLog.WriteString(fmt.Sprintf("执行出错: %v\nOutput:\n%s\n", err, output))
+				} else {
+					successCount++
+					resultLog.WriteString(fmt.Sprintf("执行成功:\n%s\n", output))
+				}
+			}
+
+			finalStatus := "成功"
+			if failCount > 0 {
+				if successCount == 0 {
+					finalStatus = "失败"
+				} else {
+					finalStatus = "部分成功"
+				}
+			}
+
+			finalLog := resultLog.String()
+			updateJobResult(job.ID, finalStatus, finalLog)
+
+			// 发送通知
+			title := fmt.Sprintf("定时任务 [%s] 执行%s", job.Name, finalStatus)
+			// 如果是部分成功或失败，或者策略是总是通知(这里暂定总是通知，或者可以加个NotificationStrategy字段)
+			// 用户之前的需求是“及通知”，假设是全部通知，或者后续细化
+			// 暂且逻辑：只要配置了通知就发
+			SendNotification(title, finalLog) // Assuming SendNotification is defined elsewhere
+		}(delaySeconds)
 	}
 }
 
+// updateJobResult updates the job's last run time, result, and error log in the database.
+func updateJobResult(jobID uint, result, logStr string) {
+	var currentJob model.CronJob
+	model.DB.First(&currentJob, jobID)
+	now := time.Now()
+	currentJob.LastRunTime = &now
+	currentJob.LastResult = result
+	currentJob.ErrorLog = logStr
+	model.DB.Save(&currentJob)
+}
+
+// handleJobResult is the old function, replaced by updateJobResult and the new RunJob logic.
+// Keeping it for context, but it's no longer called by the new RunJob.
 func handleJobResult(job *model.CronJob, runTime time.Time, result, logStr string) {
 	// 重新从DB获取以避免并发覆盖
 	var currentJob model.CronJob
