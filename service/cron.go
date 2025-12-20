@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -73,26 +74,80 @@ func RunJob(job *model.CronJob) {
 	}
 
 	go func(scs int) {
+		var finalStatus = "尚未执行"
+		var finalLog string
+		var startTime = time.Now()
+
+		defer func() {
+			if r := recover(); r != nil {
+				finalStatus = "失败"
+				finalLog += fmt.Sprintf("\nPanic recovered: %v", r)
+			}
+			
+			log.Printf("[Job %s] Finished with status: %s", job.Name, finalStatus)
+			
+			// 更新数据库
+			var currentJob model.CronJob
+			model.DB.First(&currentJob, job.ID)
+			currentJob.LastRunTime = &startTime
+			currentJob.LastResult = finalStatus
+			currentJob.ErrorLog = finalLog
+			model.DB.Save(&currentJob)
+
+			// 发送通知
+			title := fmt.Sprintf("定时任务 [%s] 执行%s", job.Name, finalStatus)
+			SendNotification(title, finalLog)
+		}()
+
 		if scs > 0 {
 			log.Printf("任务 [%s] 将随机延迟 %d 秒后执行...", job.Name, scs)
 			time.Sleep(time.Duration(scs) * time.Second)
 		}
 
-		log.Printf("开始执行任务: %s", job.Name)
+		log.Printf("[Job %s] Start executing...", job.Name)
 
-		// 解析主机信息
+		// 1. 解析主机信息 (HostInfo)
+		// Frontend 传递的是 Base64 编码的 JSON
+		// 格式可能是 单个对象(Frontend) 或 数组(Legacy)
+		
 		var hosts []SSHInfo
-		err := json.Unmarshal([]byte(job.HostInfo), &hosts)
+		var decodedHostInfo []byte
+		var err error
+
+		// 尝试 Base64 解码
+		decodedHostInfo, err = base64.StdEncoding.DecodeString(job.HostInfo)
 		if err != nil {
-			updateJobResult(job.ID, "失败", fmt.Sprintf("解析主机信息失败: %v", err))
+			// 如果解码失败，尝试直接作为 JSON (兼容旧数据)
+			decodedHostInfo = []byte(job.HostInfo)
+		}
+
+		// 尝试解析为单个对象
+		var singleHost SSHInfo
+		if err := json.Unmarshal(decodedHostInfo, &singleHost); err == nil && singleHost.Hostname != "" {
+			hosts = append(hosts, singleHost)
+		} else {
+			// 尝试解析为数组
+			if err := json.Unmarshal(decodedHostInfo, &hosts); err != nil {
+				finalStatus = "失败"
+				finalLog = fmt.Sprintf("解析主机信息失败: %v\nRaw: %s", err, string(decodedHostInfo))
+				return
+			}
+		}
+		
+		if len(hosts) == 0 {
+			finalStatus = "失败"
+			finalLog = "主机列表为空"
 			return
 		}
 
-		// 解析命令列表
-		var commands []CommandStep
+		// 2. 解析命令列表 (Commands)
+		// Frontend 传递的是 ["cmd1", "cmd2"] (字符串数组的JSON)
+		var commands []string
 		err = json.Unmarshal([]byte(job.Commands), &commands)
 		if err != nil {
-			updateJobResult(job.ID, "失败", fmt.Sprintf("解析命令失败: %v", err))
+			// 尝试兼容旧格式 (对象数组)? 暂不，Frontend已固定
+			finalStatus = "失败"
+			finalLog = fmt.Sprintf("解析命令失败: %v", err)
 			return
 		}
 
@@ -100,7 +155,7 @@ func RunJob(job *model.CronJob) {
 		successCount := 0
 		failCount := 0
 
-		// 遍历所有主机执行
+		// 3. 遍历所有主机执行
 		for _, host := range hosts {
 			resultLog.WriteString(fmt.Sprintf("\n--- Host: %s (%s) ---\n", host.Hostname, host.Username))
 			log.Printf("[Job %s] Processing host: %s", job.Name, host.Hostname)
@@ -115,16 +170,10 @@ func RunJob(job *model.CronJob) {
 				LoginType:  host.LoginType,
 			}
 
-			// Convert CommandStep slice to string slice for RunBatchTasks
-			var cmdStrings []string
-			for _, cmd := range commands {
-				cmdStrings = append(cmdStrings, cmd.Command)
-			}
-
-			log.Printf("[Job %s] Connecting and executing commands on %s...", job.Name, host.Hostname)
-			output, err := client.RunBatchTasks(cmdStrings) // Pass string slice
-			client.Close()                                  // 及时关闭
-			log.Printf("[Job %s] Execution finished on %s. Error: %v", job.Name, host.Hostname, err)
+			log.Printf("[Job %s] Executing commands on %s...", job.Name, host.Hostname)
+			output, err := client.RunBatchTasks(commands) // commands is []string
+			client.Close()
+			log.Printf("[Job %s] Host %s finished. Error: %v", job.Name, host.Hostname, err)
 
 			if err != nil {
 				failCount++
@@ -135,24 +184,17 @@ func RunJob(job *model.CronJob) {
 			}
 		}
 
-		finalStatus := "成功"
 		if failCount > 0 {
 			if successCount == 0 {
 				finalStatus = "失败"
 			} else {
 				finalStatus = "部分成功"
 			}
+		} else {
+			finalStatus = "成功"
 		}
 
-		finalLog := resultLog.String()
-		updateJobResult(job.ID, finalStatus, finalLog)
-
-		// 发送通知
-		title := fmt.Sprintf("定时任务 [%s] 执行%s", job.Name, finalStatus)
-		// 如果是部分成功或失败，或者策略是总是通知(这里暂定总是通知，或者可以加个NotificationStrategy字段)
-		// 用户之前的需求是“及通知”，假设是全部通知，或者后续细化
-		// 暂且逻辑：只要配置了通知就发
-		SendNotification(title, finalLog) // Assuming SendNotification is defined elsewhere
+		finalLog = resultLog.String()
 	}(delaySeconds)
 }
 
