@@ -103,22 +103,19 @@ func RunJob(job *model.CronJob) func() { // Changed signature to return a func()
 			for _, host := range hosts {
 				resultLog.WriteString(fmt.Sprintf("\n--- Host: %s (%s) ---\n", host.Hostname, host.Username))
 
-				client, err := core.NewSSHClient(&core.SSHClient{
-					Host:       host.Hostname,
+				client := &core.SSHClient{
+					Hostname:   host.Hostname,
 					Port:       host.Port,
 					Username:   host.Username,
 					Password:   host.Password,
-					Key:        host.PrivateKey,
+					PrivateKey: host.PrivateKey,
 					Passphrase: host.Passphrase,
-					IsKeyAuth:  host.LoginType == 1, // Corrected field name
-				})
-
-				if err != nil {
-					failCount++
-					errMsg := fmt.Sprintf("连接失败: %v", err)
-					resultLog.WriteString(errMsg + "\n")
-					continue
+					LoginType:  host.LoginType,
 				}
+
+				// 移除 err != nil 检查，因为直接初始化不会返回错误
+				// 但 RunBatchTasks 内部会调用 GenerateClient 建立连接
+
 
 				// Convert CommandStep slice to string slice for RunBatchTasks
 				var cmdStrings []string
