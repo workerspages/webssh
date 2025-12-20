@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  webssh:
+    container_name: webssh
+    image: ghcr.io/workerspages/webssh:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      # [重要] 持久化 SQLite 数据库文件，防止重启容器后用户和任务数据丢失
+      # 容器内路径需与 main.go 中 model.InitDB() 定义的路径一致
+      - ./webssh.db:/webssh/webssh.db
+      
+      # 如果需要持久化日志，可以挂载日志目录（视具体实现而定）
+      # - ./logs:/webssh/logs
+    environment:
+      - PORT=8888
+      - USER=admin        # 自定义用户名
+      - PASS=admin123     # 自定义密码
+      - TZ=Asia/Shanghai  # 设置时区，这对 Cron 定时任务非常重要
+    restart: unless-stopped
