@@ -28,7 +28,18 @@ import {
     MenuItemGroup,
     Aside,
     Breadcrumb,
-    BreadcrumbItem
+    BreadcrumbItem,
+    Switch,
+    Select,
+    Option,
+    Radio,
+    RadioGroup,
+    InputNumber,
+    Tag,
+    Popover,
+    Card,
+    MessageBox,
+    Loading
 } from 'element-ui'
 const element = {
     install: function (Vue) {
@@ -60,6 +71,22 @@ const element = {
         Vue.use(Tooltip)
         Vue.use(Breadcrumb)
         Vue.use(BreadcrumbItem)
+        Vue.use(Switch)
+        Vue.use(Select)
+        Vue.use(Option)
+        Vue.use(Radio)
+        Vue.use(RadioGroup)
+        Vue.use(InputNumber)
+        Vue.use(Tag)
+        Vue.use(Popover)
+        Vue.use(Card)
+
+        Vue.use(Loading.directive)
+        Vue.prototype.$loading = Loading.service
+        Vue.prototype.$msgbox = MessageBox
+        Vue.prototype.$alert = MessageBox.alert
+        Vue.prototype.$confirm = MessageBox.confirm
+        Vue.prototype.$prompt = MessageBox.prompt
         Vue.prototype.$message = Message
     }
 }
