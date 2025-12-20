@@ -103,6 +103,7 @@ func RunJob(job *model.CronJob) {
 		// 遍历所有主机执行
 		for _, host := range hosts {
 			resultLog.WriteString(fmt.Sprintf("\n--- Host: %s (%s) ---\n", host.Hostname, host.Username))
+			log.Printf("[Job %s] Processing host: %s", job.Name, host.Hostname)
 
 			client := &core.SSHClient{
 				Hostname:   host.Hostname,
@@ -114,18 +115,16 @@ func RunJob(job *model.CronJob) {
 				LoginType:  host.LoginType,
 			}
 
-			// 移除 err != nil 检查，因为直接初始化不会返回错误
-			// 但 RunBatchTasks 内部会调用 GenerateClient 建立连接
-
-
 			// Convert CommandStep slice to string slice for RunBatchTasks
 			var cmdStrings []string
 			for _, cmd := range commands {
 				cmdStrings = append(cmdStrings, cmd.Command)
 			}
 
+			log.Printf("[Job %s] Connecting and executing commands on %s...", job.Name, host.Hostname)
 			output, err := client.RunBatchTasks(cmdStrings) // Pass string slice
 			client.Close()                                  // 及时关闭
+			log.Printf("[Job %s] Execution finished on %s. Error: %v", job.Name, host.Hostname, err)
 
 			if err != nil {
 				failCount++
