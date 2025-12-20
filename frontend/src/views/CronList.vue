@@ -57,6 +57,11 @@
               <el-input v-model="form.CronExpr" placeholder="例如: 0 0 * * * (每日0点)"></el-input>
               <div class="tip">格式: 秒 分 时 日 月 周</div>
             </el-form-item>
+            <el-form-item label="随机延迟">
+              <el-input-number v-model="form.RandomDelay" :min="0" :max="1440" controls-position="right"></el-input-number>
+              <span style="margin-left: 10px">分钟</span>
+              <div class="tip">任务触发后，将在 0 ~ N 分钟内随机执行 (防检测)</div>
+            </el-form-item>
             <el-form-item label="状态">
               <el-switch v-model="form.Status" :active-value="1" :inactive-value="0" active-text="启用" inactive-text="停用"></el-switch>
             </el-form-item>
@@ -124,6 +129,7 @@ export default {
         Name: '',
         CronExpr: '',
         Status: 1,
+        RandomDelay: 0,
         HostInfo: '',
         Commands: ''
       },
@@ -253,7 +259,7 @@ export default {
     },
     resetForm() {
       this.activeTab = 'basic'
-      this.form = { ID: 0, Name: '', CronExpr: '', Status: 1, HostInfo: '', Commands: '' }
+      this.form = { ID: 0, Name: '', CronExpr: '', Status: 1, RandomDelay: 0, HostInfo: '', Commands: '' }
       this.sshForm = { hostname: '', port: 22, username: 'root', password: '', logintype: 0, privateKey: '', passphrase: '' }
       this.commandList = ['']
     },
