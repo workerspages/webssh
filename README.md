@@ -56,12 +56,12 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - USER=admin
-      - PASS=admin123
-      - TZ=Asia/Shanghai
+      - USER=admin        # 自定义用户名
+      - PASS=admin123     # 自定义密码
+      - TZ=Asia/Shanghai  # 设置时区，这对 Cron 定时任务非常重要
     volumes:
       - ./data:/app/data  # 挂载数据目录以持久化数据库(webssh.db)
-    restart: always
+    restart: unless-stopped
 ```
 
 ## 源码构建
