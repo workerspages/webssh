@@ -8,10 +8,6 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/pkg/sftp v1.13.7
 	golang.org/x/crypto v0.32.0
-    go get -u gorm.io/gorm
-    go get -u gorm.io/driver/sqlite
-    go get -u github.com/robfig/cron/v3
-    go get -u github.com/golang-jwt/jwt/v5
 )
 
 require (
