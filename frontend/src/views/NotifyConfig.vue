@@ -42,6 +42,21 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+
+        <el-tab-pane label="Bark通知" name="bark">
+          <el-form :model="form" label-width="120px" class="config-form">
+             <el-form-item label="启用">
+              <el-switch v-model="form.enable_bark"></el-switch>
+            </el-form-item>
+            <el-form-item label="Bark URL">
+              <el-input v-model="form.bark_url" placeholder="https://api.day.app/Key/ 或仅 Key"></el-input>
+              <div style="font-size: 12px; color: #909399; line-height: 1.5">
+                支持完整 API URL 或仅填写 Key。<br>
+                如果是自建服务请填写完整 URL (结尾不要带 /)。
+              </div>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
       </el-tabs>
 
       <div class="action-footer">
@@ -69,7 +84,9 @@ export default {
         email_to: '',
         enable_tg: false,
         tg_bot_token: '',
-        tg_chat_id: ''
+        tg_chat_id: '',
+        enable_bark: false,
+        bark_url: ''
       },
       saving: false,
       testing: false
