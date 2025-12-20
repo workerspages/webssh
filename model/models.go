@@ -15,9 +15,16 @@ type User struct {
 // NotificationConfig 通知配置
 type NotificationConfig struct {
 	gorm.Model
-	Type      string // "email" or "telegram"
-	ConfigJson string // 存储JSON格式的配置 (SMTP host, port... / TG Token, ChatID)
-	IsEnabled bool
+	EnableEmail bool   `json:"enable_email"`
+	EmailHost   string `json:"email_host"`
+	EmailPort   int    `json:"email_port"`
+	EmailUser   string `json:"email_user"`
+	EmailPass   string `json:"email_pass"` // 密码 or App Password
+	EmailTo     string `json:"email_to"`   // 接收邮箱
+	
+	EnableTg    bool   `json:"enable_tg"`
+	TgBotToken  string `json:"tg_bot_token"`
+	TgChatID    string `json:"tg_chat_id"`
 }
 
 // CronJob 定时任务

@@ -1,19 +1,19 @@
 <template>
-  <div class="system-login-container">
-    <div class="login-box">
-      <div class="logo">
-        <i class="el-icon-lock" style="font-size: 48px; color: #409EFF;"></i>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-area">
+        <i class="el-icon-lock logo-icon"></i>
+        <h2 class="app-title">WebSSH</h2>
+        <p class="app-desc">集中式SSH连接管理平台</p>
       </div>
-      <h2 class="title">WebSSH 管理系统</h2>
-      <p class="subtitle">安全 · 高效 · 便捷</p>
       
       <el-form :model="form" ref="form" :rules="rules" class="login-form">
         <el-form-item prop="username">
           <el-input 
             v-model="form.username" 
             prefix-icon="el-icon-user" 
-            placeholder="请输入管理员账号"
-            size="large">
+            placeholder="用户名"
+            class="custom-input">
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
@@ -21,17 +21,24 @@
             v-model="form.password" 
             prefix-icon="el-icon-lock" 
             type="password" 
-            placeholder="请输入密码" 
+            placeholder="密码" 
             show-password 
-            size="large"
+            class="custom-input"
             @keyup.enter.native="handleLogin">
           </el-input>
         </el-form-item>
-        <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin" size="large">立即登录</el-button>
+        <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">登 录</el-button>
       </el-form>
       
-      <div class="footer-tip">默认账号: admin / 密码: admin123</div>
+      <div class="footer">
+        <span>WebSSH © 2025 | GitHub</span>
+      </div>
     </div>
+    
+    <!-- Decorative circles -->
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
   </div>
 </template>
 
@@ -39,7 +46,7 @@
 import request from '@/utils/request'
 
 export default {
-  name: 'SystemLogin',
+  name: 'Login',
   data() {
     return {
       form: { username: '', password: '' },
@@ -60,7 +67,6 @@ export default {
             if (res.code === 200) {
               localStorage.setItem('token', res.token)
               this.$message.success('登录成功')
-              // 登录成功后跳转到首页（Layout）
               this.$router.push('/')
             }
           } catch (e) {
@@ -76,46 +82,120 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.system-login-container {
-  height: 100vh;
+.login-container {
+  min-height: 100vh;
   width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f0f2f5 url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
-  background-size: cover;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-box {
-  background: rgba(255, 255, 255, 0.95);
-  width: 420px;
-  padding: 50px 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  text-align: center;
+.login-card {
+  width: 380px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  z-index: 10;
   backdrop-filter: blur(10px);
+  text-align: center;
 }
 
-.logo { margin-bottom: 10px; }
-.title { margin: 10px 0; font-size: 26px; color: #303133; font-weight: 600; }
-.subtitle { margin: 0 0 40px; color: #909399; font-size: 14px; letter-spacing: 2px; }
+.logo-area {
+  margin-bottom: 30px;
+  
+  .logo-icon {
+    font-size: 48px;
+    background: linear-gradient(to right, #f6d365 0%, #fda085 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .app-title {
+    font-size: 28px;
+    color: #333;
+    margin: 10px 0 5px;
+    font-weight: 700;
+  }
+
+  .app-desc {
+    color: #888;
+    font-size: 14px;
+    margin: 0;
+  }
+}
 
 .login-form {
-  text-align: left;
-  .el-input__inner { height: 45px; }
+  .custom-input {
+    ::v-deep .el-input__inner {
+      height: 45px;
+      line-height: 45px;
+      border-radius: 8px;
+      background: #f5f7fa;
+      border: 1px solid #e4e7ed;
+      &:focus {
+        background: #fff;
+        border-color: #764ba2;
+      }
+    }
+  }
 }
 
 .login-btn {
   width: 100%;
+  height: 45px;
   font-size: 16px;
-  padding: 12px 0;
-  margin-top: 20px;
-  letter-spacing: 4px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  margin-top: 10px;
+  transition: transform 0.2s;
+  
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
 }
 
-.footer-tip {
+.footer {
   margin-top: 30px;
   font-size: 12px;
-  color: #c0c4cc;
+  color: #999;
+}
+
+/* Decorative background circles */
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.circle-1 {
+  width: 300px;
+  height: 300px;
+  top: -50px;
+  left: -50px;
+}
+
+.circle-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -100px;
+  right: -100px;
+}
+
+.circle-3 {
+  width: 100px;
+  height: 100px;
+  bottom: 20%;
+  left: 20%;
 }
 </style>
