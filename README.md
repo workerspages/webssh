@@ -4,7 +4,7 @@
 
 WebSSH 是一个基于 **Go (Backend)** 和 **Vue2 (Frontend)** 构建的现代化 Web 端 SSH 连接与任务调度平台。它不仅提供了流畅的 Web 终端体验和 SFTP 文件管理功能，还内置了强大的定时任务调度系统和通知服务，是运维管理的得力助手。
 
-> **核心特性**： 现代化 UI | SSH 终端 | SFTP 文件管理 | Cron 定时任务 | 邮件/Telegram 通知
+> **核心特性**： 现代化 UI | SSH 终端 | SFTP 文件管理 | Cron 定时任务 (支持随机延迟) | 邮件/Telegram/Bark 通知
 
 ## 功能特性
 
@@ -13,10 +13,15 @@ WebSSH 是一个基于 **Go (Backend)** 和 **Vue2 (Frontend)** 构建的现代�
 - **定时任务**：
   - 支持标准 Cron 表达式（精确到秒）。
   - 支持多步骤命令链（Command Chaining）。
+  - 支持标准 Cron 表达式（精确到秒）。
+  - 支持多步骤命令链（Command Chaining）。
+  - **支持随机延迟执行** (Random Delay)，避免任务特征检测。
   - 任务执行日志持久化与结果回溯。
 - **消息通知**：
   - 支持 SMTP 邮件通知。
+  - 支持 SMTP 邮件通知。
   - 支持 Telegram Bot 消息推送。
+  - 支持 **Bark** (iOS) 实时推送。
   - 可配置任务执行失败/成功时的即时告警。
 - **安全认证**：
   - 独立的 Web 登录系统（JWT 认证）。
@@ -34,6 +39,7 @@ docker run -d \
   -p 8888:8888 \
   -e USER=admin        # 初始管理员用户名
   -e PASS=admin123     # 初始管理员密码
+  -e TZ=Asia/Shanghai  # 设置时区 (重要: 影响定时任务触发时间)
   --name webssh \
   --restart always \
   ghcr.io/workerspages/webssh:latest
@@ -52,6 +58,7 @@ services:
     environment:
       - USER=admin
       - PASS=admin123
+      - TZ=Asia/Shanghai
     volumes:
       - ./data:/app/data  # 挂载数据目录以持久化数据库(webssh.db)
     restart: always

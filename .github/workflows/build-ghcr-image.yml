@@ -46,7 +46,7 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/webssh
           tags: |
             type=raw,value=latest
-            type=sha,prefix=,format=short
+            type=ref,event=branch
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
