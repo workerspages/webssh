@@ -55,7 +55,12 @@
             </el-form-item>
             <el-form-item label="Cron表达式" prop="CronExpr">
               <el-input v-model="form.CronExpr" placeholder="例如: 20 07 * * * (每日早上7点20分)"></el-input>
-              <div class="tip">格式: 分 时 日 月 周 (5位标准格式)</div>
+              <div class="tip">
+                格式: <span style="font-weight: bold; color: #409EFF">分 时 日 月 周</span> (5位标准格式)<br>
+                参考: <b>20 07 * * *</b> &nbsp;&nbsp;(每日早上7点20分)<br>
+                参考: <b>*/30 9-23 * * *</b> (早9点至23点, 每30分)<br>
+                参考: <b>*/5 * * * *</b> &nbsp;&nbsp;&nbsp;(每5分钟)
+              </div>
             </el-form-item>
             <el-form-item label="随机延迟">
               <el-input-number v-model="form.RandomDelay" :min="0" :max="1440" controls-position="right"></el-input-number>
