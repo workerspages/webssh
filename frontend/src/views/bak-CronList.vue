@@ -50,6 +50,7 @@
       <el-form :model="form" ref="form" label-width="120px" :rules="rules">
         <el-tabs v-model="activeTab">
           <el-tab-pane label="基本信息" name="basic">
+            <!-- 修正: 顶部间距 -->
             <el-form-item label="任务名称" prop="Name" style="margin-top: 20px">
               <el-input v-model="form.Name" placeholder="任务名称"></el-input>
             </el-form-item>
@@ -73,6 +74,7 @@
           </el-tab-pane>
 
           <el-tab-pane label="SSH配置" name="ssh">
+            <!-- 修正: 顶部间距 -->
             <el-form-item label="主机地址" required style="margin-top: 20px">
               <el-input v-model="sshForm.hostname" placeholder="IP地址或域名"></el-input>
             </el-form-item>
@@ -100,13 +102,15 @@
           </el-tab-pane>
 
           <el-tab-pane label="命令列表" name="commands">
+            <!-- 修正: 添加了闭合标签 -->
             <div style="margin-top: 20px;">
-            <div v-for="(cmd, index) in commandList" :key="index" class="cmd-row">
-               <el-input v-model="commandList[index]" placeholder="请输入命令" style="width: 80%"></el-input>
-               <el-button type="danger" icon="el-icon-delete" circle @click="removeCommand(index)"></el-button>
+              <div v-for="(cmd, index) in commandList" :key="index" class="cmd-row">
+                 <el-input v-model="commandList[index]" placeholder="请输入命令" style="width: 80%"></el-input>
+                 <el-button type="danger" icon="el-icon-delete" circle @click="removeCommand(index)"></el-button>
+              </div>
+              <el-button type="dashed" style="width: 100%; margin-top: 10px" @click="addCommand">+ 添加命令步骤</el-button>
+              <div class="tip">命令将按顺序执行，前一条失败将终止后续执行</div>
             </div>
-            <el-button type="dashed" style="width: 100%; margin-top: 10px" @click="addCommand">+ 添加命令步骤</el-button>
-            <div class="tip">命令将按顺序执行，前一条失败将终止后续执行</div>
           </el-tab-pane>
         </el-tabs>
       </el-form>
@@ -133,9 +137,9 @@ export default {
       form: {
         ID: 0,
         Name: '',
-        CronExpr: '20 07 * * *',
+        CronExpr: '20 07 * * *', // 默认值
         Status: 1,
-        RandomDelay: 20,
+        RandomDelay: 20, // 默认值 20
         HostInfo: '',
         Commands: ''
       },
@@ -149,7 +153,7 @@ export default {
         privateKey: '',
         passphrase: ''
       },
-      commandList: [''],
+      commandList: ['date'], // 修正: 默认填入 'date'
       rules: {
         Name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
         CronExpr: [{ required: true, message: '请输入Cron表达式', trigger: 'blur' }]
@@ -267,7 +271,7 @@ export default {
       this.activeTab = 'basic'
       this.form = { ID: 0, Name: '', CronExpr: '20 07 * * *', Status: 1, RandomDelay: 20, HostInfo: '', Commands: '' }
       this.sshForm = { hostname: '', port: 22, username: 'root', password: '', logintype: 0, privateKey: '', passphrase: '' }
-      this.commandList = ['']
+      this.commandList = ['date'] // 修正: 默认填入 'date'
     },
     addCommand() {
       this.commandList.push('')
