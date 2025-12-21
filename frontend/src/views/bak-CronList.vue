@@ -135,7 +135,7 @@ export default {
         Name: '',
         CronExpr: '20 07 * * *',
         Status: 1,
-        RandomDelay: 0,
+        RandomDelay: 20,
         HostInfo: '',
         Commands: ''
       },
@@ -265,7 +265,7 @@ export default {
     },
     resetForm() {
       this.activeTab = 'basic'
-      this.form = { ID: 0, Name: '', CronExpr: '20 07 * * *', Status: 1, RandomDelay: 0, HostInfo: '', Commands: '' }
+      this.form = { ID: 0, Name: '', CronExpr: '20 07 * * *', Status: 1, RandomDelay: 20, HostInfo: '', Commands: '' }
       this.sshForm = { hostname: '', port: 22, username: 'root', password: '', logintype: 0, privateKey: '', passphrase: '' }
       this.commandList = ['']
     },
