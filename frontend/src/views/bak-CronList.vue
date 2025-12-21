@@ -50,7 +50,7 @@
       <el-form :model="form" ref="form" label-width="120px" :rules="rules">
         <el-tabs v-model="activeTab">
           <el-tab-pane label="基本信息" name="basic">
-            <el-form-item label="任务名称" prop="Name">
+            <el-form-item label="任务名称" prop="Name" style="margin-top: 20px">
               <el-input v-model="form.Name" placeholder="任务名称"></el-input>
             </el-form-item>
             <el-form-item label="Cron表达式" prop="CronExpr">
@@ -73,7 +73,7 @@
           </el-tab-pane>
 
           <el-tab-pane label="SSH配置" name="ssh">
-            <el-form-item label="主机地址" required>
+            <el-form-item label="主机地址" required style="margin-top: 20px">
               <el-input v-model="sshForm.hostname" placeholder="IP地址或域名"></el-input>
             </el-form-item>
             <el-form-item label="端口">
@@ -100,6 +100,7 @@
           </el-tab-pane>
 
           <el-tab-pane label="命令列表" name="commands">
+            <div style="margin-top: 20px;">
             <div v-for="(cmd, index) in commandList" :key="index" class="cmd-row">
                <el-input v-model="commandList[index]" placeholder="请输入命令" style="width: 80%"></el-input>
                <el-button type="danger" icon="el-icon-delete" circle @click="removeCommand(index)"></el-button>
