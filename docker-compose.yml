@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   webssh:
     image: ghcr.io/workerspages/webssh:latest
@@ -6,9 +7,21 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - USER=admin        # 自定义用户名
-      - PASS=admin123     # 自定义密码
-      - TZ=Asia/Shanghai  # 设置时区，这对 Cron 定时任务非常重要
+      # 管理员账号配置
+      - USER=admin
+      - PASS=admin123
+      - TZ=Asia/Shanghai
+      
+      # ----------- 外部数据库配置 -----------
+      - DB_TYPE=mariadb           # 或 mysql
+      - DB_HOST=192.168.1.100     # 【重点】修改为您外部数据库的真实 IP 或域名
+      - DB_PORT=3306              # 数据库端口
+      - DB_USER=root              # 数据库用户名
+      - DB_PASS=your_db_password  # 数据库密码
+      - DB_NAME=webssh            # 数据库库名 (请确保该库已存在)
+      # ------------------------------------
+      
     volumes:
-      - ./data:/app/data  # 挂载数据目录以持久化数据库(webssh.db)
+      # 依然挂载 data 目录，防止日志等其他文件丢失
+      - ./data:/app/data
     restart: unless-stopped
