@@ -42,7 +42,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   --name webssh \
   --restart always \
-  ghcr.io/workerspages/webssh:latest
+  ghcr.io/workerspages/webssh:external-database
 ```
 
 **连接外部数据库 (MySQL/MariaDB)**：
@@ -63,7 +63,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   --name webssh \
   --restart always \
-  ghcr.io/workerspages/webssh:latest
+  ghcr.io/workerspages/webssh:external-database
 ```
 
 ### 2. Docker Compose
@@ -72,7 +72,7 @@ docker run -d \
 version: '3.8'
 services:
   webssh:
-    image: ghcr.io/workerspages/webssh:latest
+    image: ghcr.io/workerspages/webssh:external-database
     container_name: webssh
     ports:
       - "8888:8888"
