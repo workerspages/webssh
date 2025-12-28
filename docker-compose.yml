@@ -22,6 +22,5 @@ services:
       # ------------------------------------
       
     volumes:
-      # 依然挂载 data 目录，防止日志等其他文件丢失
-      - ./data:/app/data
+      - ./data:/app/data          # 即使使用 MySQL，建议挂载 data 目录以保存日志文件等
     restart: unless-stopped
