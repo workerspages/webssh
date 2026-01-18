@@ -125,7 +125,7 @@ services:
 | `TS_AUTHKEY` | Tailscale Auth Key (设置后自动启用 Tailscale) | - |
 | `TS_HOSTNAME` | Tailscale 网络中的主机名 | `webssh` |
 | `TS_EXTRA_ARGS` | “服务器 Tag”的权限 | `--advertise-tags=tag:webssh` |
-
+> 如果不加 `TS_EXTRA_ARGS` 这一行，WebSSH 启动时会默认尝试以“个人设备”身份注册，但你的 Key 只有“服务器 Tag”的权限，可能会导致权限不匹配而报错。加上这行就万无一失了。
 ### IPv6 与 Tailscale 支持
 
 WebSSH 原生支持连接 IPv6 服务器。对于部署在只有 IPv6 出站能力的 PaaS 平台（如 Koyeb），可通过集成 Tailscale 获得 IPv4 出站能力。
