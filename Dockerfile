@@ -24,9 +24,13 @@ RUN CGO_ENABLED=0 go build -ldflags "-s -w -extldflags '-static'" -o webssh main
 # Stage 3: Final Image
 FROM alpine:latest
 WORKDIR /app
-# 安装基础依赖
-RUN apk --no-cache add ca-certificates tzdata
+# 安装基础依赖和 Tailscale
+RUN apk --no-cache add ca-certificates tzdata tailscale
 ENV TZ=Asia/Shanghai
 COPY --from=backend-builder /webssh/webssh .
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+# 创建 Tailscale 状态目录
+RUN mkdir -p /var/lib/tailscale
 EXPOSE 8888
-CMD ["./webssh"]
+CMD ["./entrypoint.sh"]

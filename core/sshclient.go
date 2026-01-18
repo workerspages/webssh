@@ -4,13 +4,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"golang.org/x/crypto/ssh"
 	"log"
 	"net"
 	"strconv"
-	"strings"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"golang.org/x/crypto/ssh"
 )
 
 // DecodedMsgToSSHClient 字符串信息解析为ssh客户端
@@ -24,9 +24,7 @@ func DecodedMsgToSSHClient(sshInfo string) (SSHClient, error) {
 	if err != nil {
 		return client, err
 	}
-	if strings.Contains(client.Hostname, ":") && string(client.Hostname[0]) != "[" {
-		client.Hostname = "[" + client.Hostname + "]"
-	}
+	// IPv6 地址格式由 net.JoinHostPort 在 GenerateClient 中自动处理
 	return client, nil
 }
 
@@ -84,7 +82,8 @@ func (sclient *SSHClient) GenerateClient() error {
 	if sclient.Port == 0 {
 		sclient.Port = 22
 	}
-	addr = fmt.Sprintf("%s:%d", sclient.Hostname, sclient.Port)
+	// 使用 net.JoinHostPort 确保 IPv6 地址格式正确 (自动添加方括号)
+	addr = net.JoinHostPort(sclient.Hostname, strconv.Itoa(sclient.Port))
 	if client, err = ssh.Dial("tcp", addr, clientConfig); err != nil {
 		return fmt.Errorf("failed to connect: %v", err)
 	}

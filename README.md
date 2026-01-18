@@ -108,6 +108,30 @@ services:
 | `DB_USER` | 数据库用户名 | `root` |
 | `DB_PASS` | 数据库密码 | - |
 | `DB_NAME` | 数据库名称 (请先手动创建库) | `webssh` |
+| **Tailscale 配置** | | |
+| `TS_AUTHKEY` | Tailscale Auth Key (设置后自动启用 Tailscale) | - |
+| `TS_HOSTNAME` | Tailscale 网络中的主机名 | `webssh` |
+
+### IPv6 与 Tailscale 支持
+
+WebSSH 原生支持连接 IPv6 服务器。对于部署在只有 IPv6 出站能力的 PaaS 平台（如 Koyeb），可通过集成 Tailscale 获得 IPv4 出站能力。
+
+**启用 Tailscale：**
+
+1. 在 [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys) 生成 Auth Key
+2. 设置 `TS_AUTHKEY` 环境变量启动容器
+
+```bash
+docker run -d \
+  -p 8888:8888 \
+  -e TS_AUTHKEY=tskey-auth-xxxxx \
+  -e USER=admin \
+  -e PASS=admin123 \
+  --name webssh \
+  ghcr.io/workerspages/webssh:latest
+```
+
+启用后，WebSSH 可通过 Tailscale 网络连接到其他 Tailscale 节点（使用 `100.x.y.z` 地址）。
 
 ## 源码构建
 
