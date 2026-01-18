@@ -96,7 +96,7 @@ services:
       # - TS_AUTHKEY=tskey-auth-xxxxx  # Tailscale Auth Key (设置后自动启用)
       # - TS_HOSTNAME=webssh           # Tailscale 网络中的主机名
 
-      # 果你不加这一行，WebSSH 启动时会默认尝试以“个人设备”身份注册，但你的 Key 只有“服务器 Tag”的权限，可能会导致权限不匹配而报错。加上这行就万无一失了。
+      # 如果不加这一行，WebSSH 启动时会默认尝试以“个人设备”身份注册，但你的 Key 只有“服务器 Tag”的权限，可能会导致权限不匹配而报错。加上这行就万无一失了。
       # - TS_EXTRA_ARGS=--advertise-tags=tag:webssh
       # ---------------------------------------------
       
