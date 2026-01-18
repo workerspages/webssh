@@ -21,6 +21,11 @@ services:
       - DB_NAME=webssh            # 数据库库名 (请确保该库已存在)
       # ------------------------------------
       
+      # ----------- Tailscale 配置 (可选) -----------
+      # - TS_AUTHKEY=tskey-auth-xxxxx  # Tailscale Auth Key (设置后自动启用)
+      # - TS_HOSTNAME=webssh           # Tailscale 网络中的主机名
+      # ---------------------------------------------
+      
     volumes:
       - ./data:/app/data          # 即使使用 MySQL，建议挂载 data 目录以保存日志文件等
     restart: unless-stopped
