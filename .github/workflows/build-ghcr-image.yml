@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main-mariadb" ]
+    branches: [ "main-mariadb", "main-mariadb-tailscale" ]
   workflow_dispatch:
 
 env:
@@ -45,7 +45,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
             ${{ secrets.DOCKER_USERNAME }}/webssh
           tags: |
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main-mariadb-tailscale' }}
+            type=raw,value=tailscale,enable=${{ github.ref == 'refs/heads/main-mariadb-tailscale' }}
             type=ref,event=branch
 
       - name: Build and push Docker image
