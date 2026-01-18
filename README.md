@@ -42,7 +42,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   --name webssh \
   --restart always \
-  ghcr.io/workerspages/webssh:external-database
+  ghcr.io/workerspages/webssh:main-mariadb-tailscale
 ```
 
 **连接外部数据库 (MySQL/MariaDB)**：
@@ -63,7 +63,7 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   --name webssh \
   --restart always \
-  ghcr.io/workerspages/webssh:external-database
+  ghcr.io/workerspages/webssh:main-mariadb-tailscale
 ```
 
 ### 2. Docker Compose
@@ -73,7 +73,7 @@ version: '3.8'
 
 services:
   webssh:
-    image: ghcr.io/workerspages/webssh:external-database
+    image: ghcr.io/workerspages/webssh:main-mariadb-tailscale
     container_name: webssh
     ports:
       - "8888:8888"
