@@ -95,11 +95,15 @@ services:
       # ----------- Tailscale 配置 (可选) -----------
       # - TS_AUTHKEY=tskey-auth-xxxxx  # Tailscale Auth Key (设置后自动启用)
       # - TS_HOSTNAME=webssh           # Tailscale 网络中的主机名
+
+      # 果你不加这一行，WebSSH 启动时会默认尝试以“个人设备”身份注册，但你的 Key 只有“服务器 Tag”的权限，可能会导致权限不匹配而报错。加上这行就万无一失了。
+      # - TS_EXTRA_ARGS=--advertise-tags=tag:webssh
       # ---------------------------------------------
       
     volumes:
       - ./data:/app/data          # 即使使用 MySQL，建议挂载 data 目录以保存日志文件等
     restart: unless-stopped
+
 ```
 
 ### 环境变量说明
@@ -120,6 +124,7 @@ services:
 | **Tailscale 配置** | | |
 | `TS_AUTHKEY` | Tailscale Auth Key (设置后自动启用 Tailscale) | - |
 | `TS_HOSTNAME` | Tailscale 网络中的主机名 | `webssh` |
+| `TS_EXTRA_ARGS` | “服务器 Tag”的权限 | `--advertise-tags=tag:webssh` |
 
 ### IPv6 与 Tailscale 支持
 
