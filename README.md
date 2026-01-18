@@ -70,6 +70,7 @@ docker run -d \
 
 ```yaml
 version: '3.8'
+
 services:
   webssh:
     image: ghcr.io/workerspages/webssh:external-database
@@ -77,19 +78,27 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - USER=admin        # 初始管理员用户名
-      - PASS=admin123     # 初始管理员密码
-      - TZ=Asia/Shanghai  # 时区设置
+      # 管理员账号配置
+      - USER=admin
+      - PASS=admin123
+      - TZ=Asia/Shanghai
       
-      # 数据库配置 (可选，不填默认使用 SQLite)
-      # - DB_TYPE=mariadb
-      # - DB_HOST=192.168.1.100
-      # - DB_PORT=3306
-      # - DB_USER=root
-      # - DB_PASS=password
-      # - DB_NAME=webssh
+      # ----------- 外部数据库配置 -----------
+      - DB_TYPE=mariadb           # 或 mysql
+      - DB_HOST=192.168.1.100     # 【重点】修改为您外部数据库的真实 IP 或域名
+      - DB_PORT=3306              # 数据库端口
+      - DB_USER=root              # 数据库用户名
+      - DB_PASS=your_db_password  # 数据库密码
+      - DB_NAME=webssh            # 数据库库名 (请确保该库已存在)
+      # ------------------------------------
+      
+      # ----------- Tailscale 配置 (可选) -----------
+      # - TS_AUTHKEY=tskey-auth-xxxxx  # Tailscale Auth Key (设置后自动启用)
+      # - TS_HOSTNAME=webssh           # Tailscale 网络中的主机名
+      # ---------------------------------------------
+      
     volumes:
-      - ./data:/app/data  # 即使使用 MySQL，建议挂载 data 目录以保存日志文件等
+      - ./data:/app/data          # 即使使用 MySQL，建议挂载 data 目录以保存日志文件等
     restart: unless-stopped
 ```
 
