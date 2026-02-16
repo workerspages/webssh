@@ -67,6 +67,7 @@ func InitDB() {
 		dbUser := os.Getenv("DB_USER")
 		dbPass := os.Getenv("DB_PASS")
 		dbName := os.Getenv("DB_NAME")
+		dbTLS := os.Getenv("DB_TLS") // true, skip-verify, 或留空
 
 		if dbHost == "" { dbHost = "127.0.0.1" }
 		if dbPort == "" { dbPort = "3306" }
@@ -76,8 +77,11 @@ func InitDB() {
 		// DSN: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", 
 			dbUser, dbPass, dbHost, dbPort, dbName)
+		if dbTLS != "" {
+			dsn += "&tls=" + dbTLS
+		}
 		
-		log.Printf("正在连接到 MariaDB/MySQL: %s:%s ...", dbHost, dbPort)
+		log.Printf("正在连接到 MariaDB/MySQL: %s:%s (tls=%s) ...", dbHost, dbPort, dbTLS)
 		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	} else {
 		// 默认 SQLite 逻辑

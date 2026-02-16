@@ -19,6 +19,7 @@ services:
       - DB_USER=root              # 数据库用户名
       - DB_PASS=your_db_password  # 数据库密码
       - DB_NAME=webssh            # 数据库库名 (请确保该库已存在)
+      # - DB_TLS=true              # TLS 加密连接 (TiDB Cloud 必须设为 true)
       # ------------------------------------
       
       # ----------- Tailscale 配置 (可选) -----------
